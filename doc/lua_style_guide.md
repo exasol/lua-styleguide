@@ -105,7 +105,7 @@ end
 
 Using the disposable variable has the advantage that static code analysis tools realize that it is okay if the variable is unused.
 
-Don't mix the `_` variable up with variable names starting with a single underscore. Those traditionally indicate [private methods](#private-and-protected-methods) .
+Don't mix the `_` variable up with variable names starting with a single underscore. Those traditionally indicate [private methods](#private-and-protected-methods).
 
 ### Don't Define Variables Starting with Double Underscores
 
@@ -115,7 +115,7 @@ In order to avoid potential conflicts with the standard library, don't define va
 
 ### Module and Class Names
 
-Keep internal module and class consistent with the files they reside in. While it is any often seen standard to simply name modules `M` inside a module file, we recommend writing out the full name. First, that is more self-documenting, second it fits better when defining classes as modules.
+Keep internal module and class consistent with the files they reside in. While it is an often seen standard to simply name modules `M` inside a module file, we recommend writing out the full name. First, that is more self-documenting, second it fits better when defining classes as modules.
 
 You also don't save a lot of time when renaming the module, since modern IDEs can refactor those module and file names with a single command. 
 
@@ -128,7 +128,7 @@ function ConnectionDefinition.new(name, credentials)
     -- create the definition
 end
 
-return connection_definition
+return ConnectionDefinition
 ```
 
 Usage:
@@ -158,7 +158,7 @@ end
 
 Which of those is more readable?
 
-And typing effort is not a valid argument given the auto-completion features of any modern IDE. Even domain abbreviations can be a problem if a reviewer or new code maintainer does not know that domain to well.
+And typing effort is not a valid argument given the auto-completion features of any modern IDE. Even domain abbreviations can be a problem if a reviewer or new code maintainer does not know that domain too well.
 
 ```lua
 local vin = get_vin()
@@ -387,13 +387,13 @@ You can do this for scripts too, if they are general enough.
 
 If you make a Lua Virtual Schema for Exasol (i.e. an Adapter Script in Lua), distributing via LuaRocks does not really help you, because the database cannot load from there. so you should use other means like [GitHub](https://github.com) for example.
 
-In the end users have to install those scripts in the database via an SQL client as inline text.
+In the end, users have to install those scripts in the database via an SQL client as inline text.
 
-Also in case of scripts or adapter scripts, you should create bundles that contain all dependencies. We recommend using [`lua-amalg`](https://github.com/siffiejoe/lua-amalg/) for this particular purpose. Note that you cannot use debug-enabled amalg bundles with Exasol, since the debug library was intentionally removed for security purposes.
+Also in case of scripts or adapter scripts, you should create bundles that contain all dependencies. We recommend using [`lua-amalg`](https://github.com/siffiejoe/lua-amalg/) for this particular purpose. Note that you cannot use debug-enabled amalg bundles (command line option `-d` or `--debug`) with Exasol, since the debug library was intentionally removed for security purposes.
 
 ## Building
 
-If you have a simple build, we recommend using [LuaRock's built-in support for building rocks](https://github.com/luarocks/luarocks/wiki/Creating-a-rock#building-a-module). It can build both pure-Lua and Lua / c mixed packages. In the context of Exasol scripts only pure-lua packages are relevant, since loading binary code is explicitly disabled.
+If you have a simple build, we recommend using [LuaRock's built-in support for building rocks](https://github.com/luarocks/luarocks/wiki/Creating-a-rock#building-a-module). It can build both pure-Lua and Lua / C mixed packages. In the context of Exasol scripts only pure-lua packages are relevant, since loading binary code is explicitly disabled.
 
 ## Object-oriented Programming
 
