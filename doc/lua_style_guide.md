@@ -399,4 +399,16 @@ If you have a simple build, we recommend using [LuaRock's built-in support for b
 
 ... next commit.
 
+## Automatically Enforcing the Style Guide
+
+### Enforcing Formatting Rules
+
+[LuaFormatter](https://github.com/Koihik/LuaFormatter#readme) automatically formats Lua source code. Using rule set [.lua-format](../validation/.lua-format) you can enforce the style guide by running the following command:
+
+```shell
+lua-format --config=.lua-format --verbose --in-place -- src/*.lua spec/*.lua
+```
+
+See the [LuaFormatter documentation](https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Config.md) for a description of all available configuration parameters.
+
 [LDOC]: https://github.com/lunarmodules/LDoc
