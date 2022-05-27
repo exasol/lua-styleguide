@@ -282,7 +282,7 @@ All comments are written in English. This is the [lingua franca](https://en.wiki
 | Public API<br/>(module, function, class, method, constant)  | [LDoc][LDOC]                                                           |
 | Complex function                                            | Extract sub-functions and give them speaking names                     |
 | Complex module                                              | Extract sub-modules and give them speaking names                       |
-| Performance critical algorithm                              | This is a case where an explanation in form of a comment is acceptable |
+| Performance critical algorithm                              | In this is a case an explanation in form of a comment is acceptable    |
 
 As you can see from the examples above, there is almost always a better way of documenting your code than commenting it.
 
