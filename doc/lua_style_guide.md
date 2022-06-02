@@ -385,7 +385,7 @@ You can do this for scripts too, if they are general enough.
 
 ### Distributing Virtual Schemas and Other Exasol Lua Scripts
 
-If you make a Lua Virtual Schema for Exasol (i.e. an Adapter Script in Lua), distributing via LuaRocks does not really help you, because the database cannot load from there. so you should use other means like [GitHub](https://github.com) for example.
+If you make a Lua Virtual Schema for Exasol (i.e. an Adapter Script in Lua), distributing via LuaRocks does not really help you, because the database cannot load from there, so you should use other means like [GitHub](https://github.com) for example.
 
 In the end, users have to install those scripts in the database via an SQL client as inline text.
 
@@ -410,15 +410,15 @@ In Lua an object is simply a table with attributes pointing to either values (fi
 So a naive object implementation &mdash; and a perfectly sufficient one, if you don't need inheritance or multiple objects of the same class &mdash; is:
 
 ```lua
-local object = {name = "simple object"}
-function object.get_name(self) return self.name end
+local object = {_name = "simple object"}
+function object.get_name(self) return self._name end
 ```
 
 We can shorten that with a little bit of syntactic sugar by using the `:` operator.
 
 ```lua
-local object = {name = "simple object"}
-function object:get_name() return self.name end
+local object = {_name = "simple object"}
+function object:get_name() return self._name end
 ```
 
 The `:` operator simply hides the first parameter and calls it `self`. That's it.
