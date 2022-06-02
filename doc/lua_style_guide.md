@@ -497,7 +497,7 @@ We also give the base class a getter for the name. Since all database objects ha
 
 ```lua
 function AbstractDatabaseObject:get_name()
-    return self.name
+    return self._name
 end
 ```
 
