@@ -399,9 +399,9 @@ If you have a simple build, we recommend using [LuaRock's built-in support for b
 
 Lua does not have a built-in object-orientation syntax like Java or Python. That being said, Lua is so flexible that you can use object-oriented programming with just a little extra typing effort.
 
-There are different approaches, some using [metattables][METATABLES] others explicit method overwriting. All have different pros and cons.
+There are different approaches, some using [metatables][METATABLES] others explicit method overwriting. All have different pros and cons.
 
-We decided on a style that is a good compromise between, readability, compact code and complexity.
+We decided on a style that is a good compromise between readability, compact code and complexity.
 
 ### Objects
 
@@ -487,7 +487,7 @@ Next, we add an initializer that saves a parameter `name` in the instance variab
 
 ```lua
 function AbstractDatabaseObject:_init(name)
-    self.name = name
+    self._name = name
 end
 ```
 
@@ -511,7 +511,7 @@ Table.__index = Table
 setmetatable(Table, {__index = AbstractDatabaseObject})
 ```
 
-The fist line creates the class as empty table. Next we give the class `Table` a field `__index`, that points to itself. While that looks ridiculous at first, it will make sense once you look at the constructor.
+The fist line creates the class as an empty table. Next we give the class `Table` a field `__index`, that points to itself. While that looks ridiculous at first, it will make sense once you look at the constructor.
 
 Setting the [metatable][METATABLES] of `Table` with the `__index` field pointing to the base class, is the equivalent of saying: "if you don't find an attribute in `Table`, look it up in `AbstractDatabaseObject`".
 

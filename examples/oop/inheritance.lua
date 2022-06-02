@@ -5,16 +5,16 @@
 local AbstractDatabaseObject = {}
 
 function AbstractDatabaseObject:_init(name)
-    self.name = name
+    self._name = name
 end
 
---- Get the name o the database object.
+--- Get the name of the database object.
 -- @treturn string name of the database object
 function AbstractDatabaseObject:get_name()
-    return self.name
+    return self._name
 end
 
---- Class reprensenting a database table.
+--- Class representing a database table.
 -- Derived from the `AbstractDatabaseObject`.
 -- @classmod AbstractDatabaseObject
 -- @field columns colum definitions
@@ -47,5 +47,6 @@ function Table:__tostring()
     return output .. ")"
 end
 
+-- Example usage of the Table class
 local the_table = Table:new("T", {C1 = "VARCHAR(10)", C2 = "BOOLEAN"})
 print(the_table)
