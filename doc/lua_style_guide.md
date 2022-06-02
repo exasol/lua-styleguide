@@ -397,7 +397,194 @@ If you have a simple build, we recommend using [LuaRock's built-in support for b
 
 ## Object-oriented Programming
 
-... next commit.
+Lua does not have a built-in object-orientation syntax like Java or Python. That being said, Lua is so flexible that you can use object-oriented programming with just a little extra typing effort.
+
+There are different approaches, some using [metatables][METATABLES] others explicit method overwriting. All have different pros and cons.
+
+We decided on a style that is a good compromise between readability, compact code and complexity.
+
+### Objects
+
+In Lua an object is simply a table with attributes pointing to either values (fields) or functions (methods).
+
+So a naive object implementation &mdash; and a perfectly sufficient one, if you don't need inheritance or multiple objects of the same class &mdash; is:
+
+```lua
+local object = {name = "simple object"}
+function object.get_name(self) return self.name end
+```
+
+We can shorten that with a little bit of syntactic sugar by using the `:` operator.
+
+```lua
+local object = {name = "simple object"}
+function object:get_name() return self.name end
+```
+
+The `:` operator simply hides the first parameter and calls it `self`. That's it.
+
+The takeaway here is that objects in Lua are Lua tables.
+
+### Visibility
+
+When Lua objects are just tables and users can access table attributes, then this means all fields and methods are visible from the outside, making them _public_.
+
+There are ways to achieve privacy in Lua, but they add a lot of complexity, therefore the Lua community seems to broadly accept the following conventions:
+
+1. Don't access class fields directly from the outside (unless we are talking about static constants)
+2. If you want to mark a function _private_ or _protected_, start it with a single underscore (e.g. `_init`)
+3. In code reviews look out for uses of underscore methods outside a class and complain about them
+
+## Classes
+
+In our simple example above we created an object directly by hand. While that is perfectly appropriate in that simple case, it gets old very quickly if you need multiple objects of the same type.
+
+You could copy the object and manually overwrite the attributes, but that is also neither convenient nor safe.
+
+In the following sections we step-by-step introduce a way to make classes, from which you then can create instances. 
+
+### Constructor vs. Initializer
+
+In our chosen OOP style we distinguish between the constructor and the initializer.
+
+The constructor creates a new instance, the initializer initializes the instance fields with values.
+
+This distinction is not necessary in languages like C++ or Java.
+
+But in our case we need it to avoid multiple instantiation. We will see that in a bit.
+
+### Abstract Classes and Methods
+
+Concrete classes are classes that can be instantiated. Abstract classes on the other hand can't. Instead, they only serve as base classes from which other classes must be derived. 
+
+Abstract classes have an initializer, but no constructor.
+
+Abstract methods throw an error stating that the method is abstract.
+
+### Inheritance
+
+An elegant way to support inheritance is using [metatables][METATABLES]. If you haven't already, now is the perfect time to read up on that concept.
+
+Metatables allow you to define hook functions that take action when certain events happen on an object. For example when you try to concatenate them or turn them into a string.
+
+Or if you access a table attribute that does not exist. And that last trick is exactly what you need, if you want to emulate a [virtual method table](https://en.wikipedia.org/wiki/Virtual_method_table) like in native OO languages.
+
+You can find a full code example for inheritance under [examples/oop/inheritance.lua](../examples/oop/inheritance.lua).
+
+The example demonstrates classes that represent database objects.
+
+#### Implementing an Abstract Base Class
+
+Let's first create a base class. In our example it is an [abstract class](#abstract-classes-and-methods) because that keeps the example simpler and also serves to illustrate the difference between a concrete and an abstract class.
+
+First, we define the class as an empty table.
+
+```lua
+local AbstractDatabaseObject = {}
+```
+
+Next, we add an initializer that saves a parameter `name` in the instance variable (aka. "field") `name`.
+
+```lua
+function AbstractDatabaseObject:_init(name)
+    self._name = name
+end
+```
+
+You can see the `:` operator at work here again. `_init` operates on an instance and the hidden first parameter called `self` points to that instance.
+
+We also give the base class a getter for the name. Since all database objects have a name, we want that in the base class to avoid code duplication.
+
+```lua
+function AbstractDatabaseObject:get_name()
+    return self.name
+end
+```
+
+#### Deriving a Class From a Base Class
+
+Now, we derive a class `Table` from `AbstractDatabaseObject`.
+
+```lua
+local Table = {}
+Table.__index = Table
+setmetatable(Table, {__index = AbstractDatabaseObject})
+```
+
+The fist line creates the class as an empty table. Next we give the class `Table` a field `__index`, that points to itself. While that looks ridiculous at first, it will make sense once you look at the constructor.
+
+Setting the [metatable][METATABLES] of `Table` with the `__index` field pointing to the base class, is the equivalent of saying: "if you don't find an attribute in `Table`, look it up in `AbstractDatabaseObject`".
+
+And just like that we implemented a virtual method table (vtable). The major difference to OO languages like C++ and Java is, that the vtable is explicitly visible in the code.
+
+`Table` is a concrete class, meaning we can create an instance of this class. And for that we need a constructor `new`. You could in theory name the constructor however you please, but `new` is a pretty good choice for compatibility with other OO languages, so we'll stick to that.
+
+```lua
+function Table:new(name, columns)
+    assert(columns ~= nil, "A table needs at least one column.")
+    local instance = setmetatable({}, self)
+    instance:_init(name, columns)
+    return instance
+end
+```
+
+The `assert` is not strictly necessary for the code to function as long as the calling code makes no mistakes. But helps with bailing out at the earliest possible point, if a problem is detected.
+
+Next, we create the instance of the class `Table` (aka. the actual object). There is a lot going on in that seemingly unassuming line of code. Let's read it from inside out. We define an empty anonymous table `{}` and on that table we install a [metatable][METATALBES] that is initialized with the `self` pointer of the constructor.
+
+The constructor is called with `Table:new(...)`, so the self pointer actually points to the class `Table` which we earlier outfitted with an `__index` attribute.
+
+Finally, `setmetatable` returns the anonymous table it sets the metatable on. And we save that in the local variable `instance`.
+
+So now we have an instance of the class `Table`, but it is not yet complete. It still needs to be initialized and that is what the explicit call to the protected method `_init` does.
+
+```lua
+function Table:_init(name, columns)
+    AbstractDatabaseObject._init(self, name)
+    self.columns = columns
+end
+```
+
+Note how we first call the initializer of the base class and then initialize the remaining field of the derived class.
+
+Also note, that it is very important to not use the `:` operator in the base initializer call. We want to call the method `_init` in class `AbstractBaseObject`, but it needs the instance of the derived class as self-pointer!
+
+Now that we dealt with the construction and initialization of our object, lets do something useful with it and add a method to turn it into a string.
+
+```lua
+function Table:__tostring()
+    local output = self:get_name() .. " ("
+    local i = 0
+    for column, datatype in pairs(self.columns) do
+        output = output .. string.format("%s%s (%s)", (i > 0 and ", " or ""), column, datatype)
+        i = i + 1
+    end
+    return output .. ")"
+end
+```
+
+"Why on earth does that work?", you might ask yourself.
+
+We define a metamethod `__tostring` on the `Table` class. We use the class as metatable for its own instance in the constructor. When we call `tostring(table_instance)` this causes a lookup in the instances metatable, searches for `__tostring` and calls the hook function behind it.
+
+Note the call to `self:get_name()`. **That method does not exist in the derived class**. But it exists in the base class and thanks to us setting the base class as metatable for the derived class, you can call that method on a `Table` instance and execute the `AbstractDatabaseObject` implementation.
+
+Inheritance achieved.
+
+### Creating an Instance and Using it 
+
+Finally, we need to see those two classes in action, so let's create an instance of `Table` and print it.
+
+```lua
+local the_table = Table:new("T", {C1 = "VARCHAR(10)", C2 = "BOOLEAN"})
+print(the_table)
+```
+
+We call the constructor, which is just an attribute called `new` holding a function in the Lua table that represents the class `Table`. We provide the database table name and the column names mapped to data types as constructor parameters.
+
+We assign the return value of `new` to the variable `the_table`. That is a pointer to the new instance of the `Table` class. 
+
+Calling `print` on the instance forces the object to be converted to a string. Lua checks whether the instance has a metatable &mdash; which it does &mdash; and then looks up the hook function `__tostring` and executes it. Inside the `__tostring` method `self:get_name` calls a function of the base class.
 
 ## Automatically Enforcing the Style Guide
 
@@ -412,3 +599,4 @@ lua-format --config=.lua-format --verbose --in-place -- src/*.lua spec/*.lua
 See the [LuaFormatter documentation](https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Config.md) for a description of all available configuration parameters.
 
 [LDOC]: https://github.com/lunarmodules/LDoc
+[METATABLES]: https://www.lua.org/manual/5.4/manual.html#2.4
