@@ -298,7 +298,7 @@ As in any programming language, it is best to keep the scope of all variables as
 
 ### Avoid the Global Scope
 
-Avoid the global scope. In Lua the global scope is the top-level scope. You either write to it by leaving out the `local` modifier and module name or by explicitly addressing the reserved `_G` variable. Globals are particular prone to name-collision and overwriting problems.
+Avoid the global scope. In Lua the global scope is the top-level scope. You either write to it by leaving out the `local` modifier and module name or by explicitly addressing the reserved `_G` variable. Globals are particularly prone to name-collision and overwriting problems.
 
 That being said, there are situations where modifying the global scope actually makes sense. A very typical example is getting forward compatibility in code that has been written for Lua 5.1, but is supposed to run in Lua 5.2 or later too. The following trick maps `table.unpack` to the global scope as was the case prior to Lua 5.2:
 
