@@ -541,7 +541,7 @@ So now we have an instance of the class `Table`, but it is not yet complete. It 
 ```lua
 function Table:_init(name, columns)
     AbstractDatabaseObject._init(self, name)
-    self.columns = columns
+    self._columns = columns
 end
 ```
 
@@ -555,7 +555,7 @@ Now that we dealt with the construction and initialization of our object, lets d
 function Table:__tostring()
     local output = self:get_name() .. " ("
     local i = 0
-    for column, datatype in pairs(self.columns) do
+    for column, datatype in pairs(self._columns) do
         output = output .. string.format("%s%s (%s)", (i > 0 and ", " or ""), column, datatype)
         i = i + 1
     end
