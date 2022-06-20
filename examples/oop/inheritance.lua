@@ -34,13 +34,13 @@ end
 
 function Table:_init(name, columns)
     AbstractDatabaseObject._init(self, name)
-    self.columns = columns
+    self._columns = columns
 end
 
 function Table:__tostring()
     local output = self:get_name() .. " ("
     local i = 0
-    for column, datatype in pairs(self.columns) do
+    for column, datatype in pairs(self._columns) do
         output = output .. string.format("%s%s (%s)", (i > 0 and ", " or ""), column, datatype)
         i = i + 1
     end
