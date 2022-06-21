@@ -50,4 +50,3 @@ end
 -- Example usage of the Table class
 local the_table = Table:new("T", {C1 = "VARCHAR(10)", C2 = "BOOLEAN"})
 print(the_table)
-sssssssssssssssssssssssssssssss
