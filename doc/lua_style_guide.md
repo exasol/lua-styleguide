@@ -435,7 +435,7 @@ There are ways to achieve privacy in Lua, but they add a lot of complexity, ther
 2. If you want to mark a function _private_ or _protected_, start it with a single underscore (e.g. `_init`)
 3. In code reviews look out for uses of underscore methods outside a class and complain about them
 
-## Classes
+### Classes
 
 In our simple example above we created an object directly by hand. While that is perfectly appropriate in that simple case, it gets old very quickly if you need multiple objects of the same type.
 
@@ -597,6 +597,32 @@ lua-format --config=.lua-format --verbose --in-place -- src/*.lua spec/*.lua
 ```
 
 See the [LuaFormatter documentation](https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Config.md) for a description of all available configuration parameters.
+
+### Getting the Class of an Object
+
+In our chosen OO style you can actually get the class from an object. One trick we applied to achieve inheritance is to assign the table defining the class as `__index` metatable. While we could directly use `__index` whenever we want to access the class, this is not particularly readable code. Let's add an extra method instead.
+
+```lua
+function Table:class()
+    return Table
+end 
+```
+
+### Constructor Calls and Subtype Polymorphism
+
+Sometimes you need to create a new object from within an object of the same class.
+
+As an example think of a class `Address` that holds a residential address in an address book. You plan to implement a method `merge` where that merges an object of type `Address` into an existing object address and return the merge result as yet another `Address` object. 
+
+The naive implementation for creating the result instance would be calling the constructor `Address:new`, but that is only correct for classes that have no subtypes, because it always calls the base class constructor. If your address book for example has a subtype `CompanyAddress`, this simple approach will fail. You might be tempted to call `self:new`, but that does not work, since you need to call `new` on a class, not an object.
+
+If you think about what we discussed in ["Getting the Class of an Object"](#getting-the-class-of-an-object), the solution is only slightly more complex:
+
+```lua
+self:class():new()
+```
+
+Of course, you can also add parameters to the constructor call if required.
 
 [LDOC]: https://github.com/lunarmodules/LDoc
 [METATABLES]: https://www.lua.org/manual/5.4/manual.html#2.4
