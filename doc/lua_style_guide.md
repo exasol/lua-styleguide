@@ -530,7 +530,7 @@ end
 
 The `assert` is not strictly necessary for the code to function as long as the calling code makes no mistakes. But helps with bailing out at the earliest possible point, if a problem is detected.
 
-Next, we create the instance of the class `Table` (aka. the actual object). There is a lot going on in that seemingly unassuming line of code. Let's read it from inside out. We define an empty anonymous table `{}` and on that table we install a [metatable][METATALBES] that is initialized with the `self` pointer of the constructor.
+Next, we create the instance of the class `Table` (aka. the actual object). There is a lot going on in that seemingly unassuming line of code. Let's read it from inside out. We define an empty anonymous table `{}` and on that table we install a [metatable][METATABLES] that is initialized with the `self` pointer of the constructor.
 
 The constructor is called with `Table:new(...)`, so the self pointer actually points to the class `Table` which we earlier outfitted with an `__index` attribute.
 
